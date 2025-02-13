@@ -13,8 +13,12 @@ public class ScreenSoundMusicasApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("teste");
+		Principal principal = new Principal();
 
+		boolean exit;
+		do{
+			exit = principal.menu();
+		}while(!exit);
 
 	}
 }
