@@ -1,15 +1,31 @@
 package com.example.screen_sound_musicas;
 
-import model.Artist;
+import com.example.screen_sound_musicas.model.Artist;
+import com.example.screen_sound_musicas.model.ArtistType;
+import com.example.screen_sound_musicas.model.Music;
+import com.example.screen_sound_musicas.repositories.ArtistRepository;
+import com.example.screen_sound_musicas.repositories.MusicRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Principal {
     Scanner scan = new Scanner(System.in);
 
-    public boolean menu (){
+    ArtistRepository artistRepository;
+    MusicRepository musicRepository;
+
+    Principal(ArtistRepository artistRepository, MusicRepository musicRepository){
+        this.artistRepository = artistRepository;
+        this.musicRepository = musicRepository;
+    }
+
+    public void menu (){
         boolean exit = false;
+        do{
             System.out.println("""
                 1 - Register artists
                 2 - Register musics
@@ -19,16 +35,16 @@ public class Principal {
                 0 - Exit
                 """);
 
-            int menu;
+            int option = -1;
             try {
                 System.out.print(">> ");
-                menu = scan.nextInt();
+                option = scan.nextInt();
+                scan.nextLine();
             }catch (InputMismatchException e){
-                menu = -1;
-                scan.next();
+                option = -1;
             }
 
-            switch (menu){
+            switch (option){
                 case 0:
                     exit = true;
                     break;
@@ -51,27 +67,62 @@ public class Principal {
                     System.out.println("invalid option!");
                     break;
             }
-            return exit;
+        }while(!exit);
     }
 
     private void registerArtists() {
-        System.out.println("registerArtist");
+        System.out.print("Artist name: ");
+        String name = scan.nextLine();
+        System.out.print("\nArtist type (solo, duo, band): ");
+        String type = scan.nextLine();
+        ArtistType artistType = ArtistType.valueOf(type.toUpperCase());
+
+        Artist artist = new Artist(name, artistType);
+
+        artistRepository.save(artist);
     }
 
     private void registerMusics() {
-        System.out.println("registerMusics");
+        System.out.print("Artist name: ");
+        String artistName = scan.nextLine();
+        Optional<Artist> artist = artistRepository.findByName(artistName);
+
+        if(artist.isPresent()){
+            System.out.print("\nMusic name: ");
+            String musicName = scan.nextLine();
+
+            Music music = new Music(musicName, artist.get());
+            musicRepository.save(music);
+
+        } else {
+            System.out.println("'" + artistName + "' not found!");
+        }
+
     }
 
     private void listMusics() {
-        System.out.println("listMusics");
+        List<Music> musics = musicRepository.findAll();
+        musics.forEach(System.out::println);
     }
 
     private void findMusicsByArtist() {
-        System.out.println("findMusicsByArtist");
+        System.out.print("Artist name: ");
+        String artistName = scan.nextLine();
+
+        List<Music> musics = musicRepository.findByArtistName(artistName);
+
+        if (!musics.isEmpty()){
+            musics.forEach(System.out::println);
+        }else {
+            System.out.println("'" + artistName + "' not found!");
+        }
     }
 
     private void findArtist() {
-        System.out.println("findArtist");
+        Artist artist = new Artist();
+        artist.setName("Fresno");
+        Artist artistFind = artistRepository.findAll().get(0);
+        System.out.println(artistFind);
     }
 
 }
