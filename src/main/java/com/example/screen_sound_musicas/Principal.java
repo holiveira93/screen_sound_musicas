@@ -5,7 +5,6 @@ import com.example.screen_sound_musicas.model.ArtistType;
 import com.example.screen_sound_musicas.model.Music;
 import com.example.screen_sound_musicas.repositories.ArtistRepository;
 import com.example.screen_sound_musicas.repositories.MusicRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.InputMismatchException;
 import java.util.List;
@@ -119,10 +118,11 @@ public class Principal {
     }
 
     private void findArtist() {
-        Artist artist = new Artist();
-        artist.setName("Fresno");
-        Artist artistFind = artistRepository.findAll().get(0);
-        System.out.println(artistFind);
+        System.out.print("Artist name: ");
+        String artistName = scan.nextLine();
+
+        String response = ChatGPTQuery.getDataAboutAnArtist(artistName);
+        System.out.println(response.trim());
     }
 
 }
